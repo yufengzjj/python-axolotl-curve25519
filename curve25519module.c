@@ -39,16 +39,16 @@ int sc_is_canonical(const unsigned char *k, int len)
     {
         int v5 = k[i];
         int v6 = L[i];
-        v2 = v3 & ((v5 - v6) >> 8) | (unsigned __int8)v2;
+        v2 = v3 & ((v5 - v6) >> 8) | (unsigned char)v2;
         v3 &= ((v6 ^ v5) - 1) >> 8;
     }
-    return (unsigned __int8)v2 != 0;
+    return (unsigned char)v2 != 0;
 }
 
 int libsodium_is_zero(const unsigned char *k, int len)
 {
     char v2;
-    unsigned __int8 i;
+    unsigned char i;
 
     for (i = 0; len; --len)
     {
