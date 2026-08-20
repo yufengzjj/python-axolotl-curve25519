@@ -5,6 +5,10 @@
 typedef int Py_ssize_t;
 #endif
 
+#include "ge.h"
+#include "crypto_additions.h"
+#include "gen_crypto_additions.h"
+
 /* This is required for compatibility with Python 2. */
 #if PY_MAJOR_VERSION >= 3
 #include <bytesobject.h>
@@ -39,7 +43,7 @@ int sc_is_canonical(const unsigned char *k, int len)
     {
         int v5 = k[i];
         int v6 = L[i];
-        v2 = v3 & ((v5 - v6) >> 8) | (unsigned char)v2;
+        v2 = (v3 & ((v5 - v6) >> 8)) | (unsigned char)v2;
         v3 &= ((v6 ^ v5) - 1) >> 8;
     }
     return (unsigned char)v2 != 0;
@@ -182,7 +186,6 @@ calculateAgreement(PyObject *self, PyObject *args)
     return PyBytes_FromStringAndSize((char *)shared_key, 32);
 }
 
-#include "ge.h"
 
 static PyObject *
 acs_generate_native_blind(PyObject *self, PyObject *args)
@@ -202,7 +205,7 @@ acs_generate_native_blind(PyObject *self, PyObject *args)
     unsigned char k_buf[32];
     memcpy(k_buf, k, k_len);
     k_buf[0] &= 0xF8u;
-    k_buf[31] = k_buf[31] & 0x3F | 0x40;
+    k_buf[31] = (k_buf[31] & 0x3F) | 0x40;
     ge_p3 p_k;
     ge_scalarmult_base(&p_k, k_buf);
     ge_p3 p_h;
@@ -231,8 +234,8 @@ acs_generate_native_unblind(PyObject *self, PyObject *args)
     unsigned char k_buf[32];
     memcpy(k_buf, k, k_len);
     k_buf[0] &= 0xF8u;
-    k_buf[31] = k_buf[31] & 0x3F | 0x40;
-    ge_p3 pk_p,sc_p,sc_r,p,kpk_r;
+    k_buf[31] = (k_buf[31] & 0x3F) | 0x40;
+    ge_p3 pk_p,sc_p,sc_r,kpk_r;
     ge_frombytes_negate_vartime(&sc_p,signed_credential);
     ge_neg(&sc_r,&sc_p);
     ge_frombytes_negate_vartime(&pk_p,acs_public_key);
@@ -276,7 +279,7 @@ static struct PyModuleDef
         PyModuleDef_HEAD_INIT,
         "axolotl_curve25519",
         NULL,
-        NULL,
+        -1,
         curve25519_functions,
 };
 
